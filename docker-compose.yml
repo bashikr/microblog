@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  prod:
+    image: bashikr/microblog:latest
+    container_name: "microblog-prod"
+    links:
+      - dbserver
+    ports:
+        - "8000:5000"
+    restart: "always"
+    environment:
+      MYSQL_DATABASE: microblog
+      SECRET_KEY: secret
+  dbserver:
+    image: mysql:5.7
+    container_name: "dbserver"
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: microblog
+      MYSQL_DATABASE: microblog
+      MYSQL_PASSWORD: secret
+      DATABASE_URL: mysql+pymysql://microblog:secret@dbserver/microblog
+    restart:
+      "unless-stopped"
+  test:
+    container_name: "test-prod"
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile_test
+    volumes:
+      - .:/home/microblog
+    restart:
+      "unless-stopped"
+    environment:
+      SECRET_KEY: development
+      DATABASE_URL: mysql+pymysql://microblog:secret@dbserver/microblog

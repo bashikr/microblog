@@ -1,0 +1,31 @@
+FROM python:3.8-alpine
+RUN adduser -D microblog
+
+WORKDIR /home/microblog
+
+COPY requirements requirements
+COPY requirements.txt boot-test.sh ./
+
+RUN python -m venv .venv
+
+# hadolint ignore=DL3013,DL3018
+RUN apk --no-cache add --virtual build-dependencies libffi-dev openssl-dev py-pip build-base \
+  && pip install  --upgrade pip \
+  && pip install  -r requirements.txt \
+  && pip install -U setuptools \
+  && pip install -U pylint \
+  && apk del build-dependencies
+
+# hadolint ignore=DL3013,DL3018
+RUN apk add --no-cache bash  make cmake
+
+RUN .venv/bin/pip3 install -r requirements.txt \
+&& .venv/bin/pip3 install -r requirements/test.txt \
+&& .venv/bin/pip3 install py pytest coverage pylint
+
+RUN chmod +x boot-test.sh
+
+RUN chown -R microblog:microblog ./
+USER microblog
+
+ENTRYPOINT ["bash", "./boot-test.sh"]
