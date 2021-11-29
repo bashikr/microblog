@@ -1,0 +1,8 @@
+---
+-   name: Play 1 # - is treated as dictionary in Plays and as list in tasks
+    hosts: devops
+    remote_user: azureuser
+    become: yes
+    become_method: sudo
+    roles:
+        - 10-first-minutes

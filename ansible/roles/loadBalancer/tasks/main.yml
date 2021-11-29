@@ -1,0 +1,62 @@
+---
+-   name: Update apt-cache and upgrade
+    apt:
+        force_apt_get: yes
+        update_cache: "True"
+        cache_valid_time: 3600
+        upgrade: yes
+
+-   name: Install packages
+    apt:
+        force_apt_get: yes
+        name: 
+          - nginx
+          - python-certbot-nginx
+        state: present
+
+-   name: Check if certificate already exists.
+    stat:
+        path: /etc/letsencrypt/live/{{ domain_name }}/cert.pem
+    register: letsencrypt_cert # Register capture or store the output of the command or task
+
+-   debug: msg="{{ letsencrypt_cert.stat.exists }}"
+
+-   name: Stop services to allow certbot to generate a cert.
+    command: service nginx stop
+    when: not letsencrypt_cert.stat.exists # Conditional uses the register letsencrypt_cert
+
+-   name: Generate new certificate if one doesn't exist.
+    shell: "certbot certonly --standalone --noninteractive --expand --agree-tos --email {{ admin_email }} -d {{ domain_name }} -d www.{{ domain_name }}"
+    when: not letsencrypt_cert.stat.exists
+
+-   name: Remove default conf
+    file:
+        state: absent
+        path: /etc/nginx/sites-enabled/default
+
+-   name: Copy nginx.conf.j2 from local machine to loadBalancer VM's specified path
+    template: # Src comes from the local machine and dest will be on the VM of loadBalancer
+        src: ./templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+
+-   name: Copy load-balancer.conf.j2 from local machine to loadBalancer VM's specified path
+    template:
+        src: ./templates/load-balancer.conf.j2
+        dest: /etc/nginx/sites-available/load-balancer.conf
+
+
+-   name: Create symbolic link for load-balancer.conf
+    file:
+        state: link # both src and path are on the VM of loadBalancer
+        src: /etc/nginx/sites-available/load-balancer.conf
+        path: /etc/nginx/sites-enabled/load-balancer.conf
+
+-   name: ensure nginx is at the latest version
+    apt: name=nginx state=latest
+
+-   name: Start nginx
+    service:
+        name: nginx
+        state: started
+    notify:
+        - restart nginx

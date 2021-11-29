@@ -1,0 +1,21 @@
+---
+root_password: $6$kht.KMoDbMejDRAa$Hg7xbTwXWHwn8EwGWmgxFhgUM5m10y0rCLkGjXQrqG0qxBO1xusEN6ob8NFjFI3K2/mtrtKJZsdY.DNY6t8Rs0
+
+server_user: deploy
+server_user_pass: $6$o6dxfy1lFYowgkSg$LJS4k6DaX9izGzvmjTVMH0JxDbm4VNTB8Mod417uxArp7M6VTgjpTqUzcTxqOkpeqA4GVDIml.mD.CmLK7yXD.
+server_user_groups:
+    -   sudo
+
+pub_ssh_key_location:
+    -   ~/.ssh/id_rsa.pub
+
+# used in ansible/roles/database/tasks/main.yml
+# change it with a password
+dbserver_password: secret
+
+# used in ansible/roles/loadBalancer/tasks/main.yml
+admin_email: baaa19@student.bth.se
+
+# used in ansible/roles/loadBalancer/templates/load-balancer.conf.j2
+# used in ansible/roles/loadBalancer/tasks/main.yml
+domain_name: microblogonsteroids.software

@@ -70,6 +70,30 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
+  # Add the following environment variables on CircleCi
+  # and add their values:
+  # AZURE_AD_USER, AZURE_PASSWORD, AZURE_SUBSCRIPTION_ID.
+  # Dont forget to add your ssh PEM private key on CircleCi
+  # without giving it a name.
+  deploy-azure: # deploys appServer.yml playbook
+    - image: circleci/python:3.7
+  working_directory: ~/microblog # moves to microblog
+  steps:
+    - checkout
+    - run:
+      name: Install deployment dependencies
+      command: |
+        sudo apt update \
+        sudo apt upgrade \
+        python3 -m venv venv \
+        . venv/bin/activate \
+        make install-deploy \
+    - run:
+      name: Execute appServer playbook
+      command: |
+        cd ansible \
+        ansible-playbook gather_vm_instances.yml appServer.yml
+
 workflows:
   version: 2
   #Runs build job when we push a commit to the master branch

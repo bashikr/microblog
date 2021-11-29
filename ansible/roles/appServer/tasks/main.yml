@@ -1,0 +1,51 @@
+---
+-   name: Update apt-cache and upgrade
+    apt:
+        force_apt_get: yes
+        update_cache: "True"
+        cache_valid_time: 3600
+        upgrade: yes
+
+-   name: installa dependency
+    apt:
+        force_apt_get: yes
+        name: "{{ packages }}"
+        state: present
+
+-   name: Add Docker GPG apt Key
+    apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+-   name: Add docker repository to apt
+    apt_repository:
+        repo: deb https://download.docker.com/linux/debian/ buster stable
+        state: present
+
+-   name: install docker
+    apt:
+        update_cache: yes
+        name: "{{item}}"
+        state: latest
+    loop:
+        - docker-ce
+        - docker-ce-cli
+    notify:
+        - restart docker
+
+-   name: Install docker module for python
+    pip:
+        name: docker
+
+-   name: Create prod container
+    docker_container:
+        name: prod
+        image: bashikr/microblog:latest
+        state: started
+        container_default_behavior: "compatibility"
+        restart_policy: always
+        ports:
+        - "8000:5000"
+        env:
+            SECRET_KEY: secret # change "secret" with a password both here and in the url below
+            DATABASE_URL: mysql+pymysql://microblog:secret@{{ groups.database[0] }}:3306/microblog

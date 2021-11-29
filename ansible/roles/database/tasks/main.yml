@@ -1,0 +1,55 @@
+---
+-   name: Update apt-cache and upgrade
+    apt:
+        force_apt_get: yes
+        update_cache: "True"
+        cache_valid_time: 3600
+        upgrade: yes
+
+-   name: installa dependency
+    apt:
+        force_apt_get: yes
+        name: "{{ packages }}"
+        state: present
+
+-   name: Add Docker GPG apt Key
+    apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+-   name: Add docker repository to apt
+    apt_repository:
+        repo: deb https://download.docker.com/linux/debian/ buster stable
+        state: present
+
+-   name: install docker
+    apt:
+        update_cache: yes
+        name: "{{item}}"
+        state: latest
+    loop:
+        - docker-ce
+        - docker-ce-cli
+    notify:
+        - restart docker
+
+-   name: Install docker module for python
+    pip:
+        name: docker
+
+-   name: Create dbserver container
+    docker_container:
+        name: dbserver
+        image: mysql:5.7
+        state: started
+        container_default_behavior: "compatibility"
+        restart: yes
+        ports:
+        - "3306:3306"
+        env:
+            MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+            MYSQL_ROOT_PASSWORD: "{{ dbserver_password }}" # change it in microblog/ansible/group_vars/devops.yml
+            MYSQL_PASSWORD: "{{ dbserver_password }}" # change it in microblog/ansible/group_vars/devops.yml
+            # the password should match the given passwords inside microblog/ansible/roles/appServer/tasks/main.yml
+            MYSQL_USER: microblog
+            MYSQL_DATABASE: microblog

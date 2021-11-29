@@ -77,7 +77,7 @@ help:
 .PHONY: add-ssh
 add-ssh:
 	eval `ssh-agent -s`
-	ssh-add <path/too/ssh-key>
+	ssh-add ~/.ssh/id_rsa
 
 
 
@@ -210,15 +210,8 @@ install-test:
 
 
 
-# target: install-deploy                 - Install all Python packages specified in requirements/{deploy.txt}
+# target: install-deploy                 - Install all Python packages specified in requirements/{deploy.txt} and ansible galaxy collections in ansible/requirements.yml
 .PHONY: install-deploy
 install-deploy:
 	${pip} install -r requirements/deploy.txt
-	@${pip} install ansible[azure]
-
-
-
-# target: test-docker                 - Run test container in Docker
-.PHONY: test-docker
-test-docker:
-	docker-compose up test
+	cd ansible && ansible-galaxy install -r requirements.yml
