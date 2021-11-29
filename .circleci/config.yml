@@ -76,23 +76,24 @@ jobs:
   # Dont forget to add your ssh PEM private key on CircleCi
   # without giving it a name.
   deploy-azure: # deploys appServer.yml playbook
-    - image: circleci/python:3.7
-  working_directory: ~/microblog # moves to microblog
-  steps:
-    - checkout
-    - run:
-      name: Install deployment dependencies
-      command: |
-        sudo apt update \
-        sudo apt upgrade \
-        python3 -m venv venv \
-        . venv/bin/activate \
-        make install-deploy \
-    - run:
-      name: Execute appServer playbook
-      command: |
-        cd ansible \
-        ansible-playbook gather_vm_instances.yml appServer.yml
+    docker:
+      - image: circleci/python:3.7
+    working_directory: ~/microblog # moves to microblog
+    steps:
+      - checkout
+      - run:
+          name: Install deployment dependencies
+          command: |
+            sudo apt update \
+            sudo apt upgrade \
+            python3 -m venv venv \
+            . venv/bin/activate \
+            make install-deploy \
+      - run:
+          name: Execute appServer playbook
+          command: |
+            cd ansible \
+            ansible-playbook gather_vm_instances.yml appServer.yml
 
 workflows:
   version: 2
