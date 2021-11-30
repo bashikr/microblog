@@ -40,8 +40,6 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             sudo pip install pylint
-            sudo pip install ansible
-            make install-test
       - run:
           name: run tests
           command: |
