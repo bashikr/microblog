@@ -7,20 +7,10 @@ executors:
     docker:
       - image: circleci/buildpack-deps:stretch
 jobs:
-  test:
-    docker:
-      - image: circleci/python:3.7
-
-    steps:
-      - checkout
-      - run:
-          name: install dependencies
-          command: docker-compose up test
-
   build:
     executor: docker-publisher
     steps:
-      - checkout # It's basically a git clone of code
+      - checkout # It's basically a git clone the code
       - setup_remote_docker # Creates a remote Docker environment configured to execute Docker commands.
       - run:
           name: Build Docker image
@@ -35,4 +25,111 @@ jobs:
           root: .
           paths:
             - ./image.tar
+  test:
+    docker:
+      - image: circleci/python:3.7
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: docker-compose up test
+  #pushes the images we just built to Docker Hub
+  publish-latest:
+    executor: docker-publisher
+    steps:
+      # Retrieves image.tar file on publish-latest
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      # Loads the archived image before pushing it to Docker Hub
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            IMAGE_TAG="0.0.${CIRCLE_BUILD_NUM}"
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$IMAGE_TAG
+  publish-tag:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            IMAGE_TAG=${CIRCLE_TAG/v/''}
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$IMAGE_TAG
+  # Add the following environment variables on CircleCi
+  # and add their values:
+  # AZURE_AD_USER, AZURE_PASSWORD, AZURE_SUBSCRIPTION_ID.
+  # Dont forget to add your ssh PEM private key on CircleCi
+  # without giving it a name.
+  deploy-azure: # deploys appServer.yml playbook
+    docker:
+      - image: circleci/python:3.7
+    working_directory: ~/microblog # moves to microblog
+    steps:
+      - checkout
+      - run:
+          name: Install deployment dependencies
+          command: |
+            sudo apt update
+            sudo apt upgrade
+            python3 -m venv venv
+            . venv/bin/activate
+            make install-deploy
+      - run:
+          name: Execute appServer playbook
+          command: |
+            cd ansible
+            ansible-playbook gather_vm_instances.yml appServer.yml
 
+workflows:
+  version: 2
+  #Runs build job when we push a commit to the master branch
+  build-master:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - publish-latest:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - publish-latest:
+          requires:
+            - publish-latest
+          filters:
+            branches:
+              only: master
+  build-tags:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-tag:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
