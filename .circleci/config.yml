@@ -34,10 +34,14 @@ jobs:
       - run:
           name: install dependencies
           command: |
+            sudo apt update
+            sudo apt install python3-pip
+            sudo apt-get install python3-venv
             python3 -m venv venv
             . venv/bin/activate
-            pip install --upgrade pip
-            pip install -r pylint
+            sudo pip install pylint
+            sudo pip install ansible
+            make install-test
       - run:
           name: run tests
           command: |
