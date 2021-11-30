@@ -39,14 +39,13 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             sudo apt install python3-pip
-            which coverage
             sudo pip install pylint
             sudo pip install coverage
       - run:
           name: run tests
           command: |
             . venv/bin/activate
-            make test
+            make test-unit
 
   #pushes the images we just built to Docker Hub
   publish-latest:
