@@ -83,16 +83,14 @@ jobs:
       - run:
           name: Install deployment dependencies
           command: |
-            sudo apt update \
-            sudo apt upgrade \
-            python3 -m venv venv \
-            . venv/bin/activate \
-            make install-deploy \
+            python3 -m venv venv
+            . venv/bin/activate
+            make install-deploy
       - run:
           name: Execute appServer playbook
           command: |
-            . venv/bin/activate \
-            cd ansible \
+            . venv/bin/activate
+            cd ansible
             ansible-playbook gather_vm_instances.yml appServer.yml
 
 workflows:
