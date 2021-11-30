@@ -10,7 +10,7 @@ jobs:
   build:
     executor: docker-publisher
     steps:
-      - checkout # It's basically a git clone of code
+      - checkout # It's basically a git clone the code
       - setup_remote_docker # Creates a remote Docker environment configured to execute Docker commands.
       - run:
           name: Build Docker image
@@ -29,12 +29,21 @@ jobs:
   test:
     docker:
       - image: circleci/python:3.7
-    working_directory: ~/repo
     steps:
       - checkout
       - run:
           name: install dependencies
-          command: docker-compose up test
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install -r pylint
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            make test
+
   #pushes the images we just built to Docker Hub
   publish-latest:
     executor: docker-publisher
@@ -88,16 +97,16 @@ jobs:
       - run:
           name: Install deployment dependencies
           command: |
-            sudo apt update \
-            sudo apt upgrade \
-            python3 -m venv venv \
-            . venv/bin/activate \
-            make install-deploy \
+            sudo apt update
+            sudo apt upgrade
+            python3 -m venv venv
+            . venv/bin/activate
+            make install-deploy
       - run:
           name: Execute appServer playbook
           command: |
-            . venv/bin/activate \
-            cd ansible \
+            . venv/bin/activate
+            cd ansible
             ansible-playbook gather_vm_instances.yml appServer.yml
 
 workflows:
@@ -105,13 +114,25 @@ workflows:
   #Runs build job when we push a commit to the master branch
   build-master:
     jobs:
+      - test:
+          filters:
+            branches:
+              only: master
       - build:
+          requires:
+            - test
           filters:
             branches:
               only: master
       - publish-latest:
           requires:
             - build
+          filters:
+            branches:
+              only: master
+      - deploy-azure:
+          requires:
+            - publish-latest
           filters:
             branches:
               only: master
