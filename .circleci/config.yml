@@ -38,11 +38,11 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install py pylint pytest coverage
+            pip install -r requirements.txt
       - run:
           name: run tests
           command: |
             . venv/bin/activate
-            which coverage
             make test
   #pushes the images we just built to Docker Hub
   publish-latest:
