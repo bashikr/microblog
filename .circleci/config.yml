@@ -34,10 +34,19 @@ jobs:
       - run:
           name: install dependencies
           command: |
+<<<<<<< HEAD
             python3 -m venv venv
             . venv/bin/activate
             pip install --upgrade pip
             pip install -r pylint
+=======
+            sudo apt update
+            sudo apt install python3-pip
+            sudo apt-get install python3-venv
+            python3 -m venv venv
+            . venv/bin/activate
+            sudo pip install pylint
+>>>>>>> 2799a449d197d6c255fe8462b6eb143ef6c1431b
       - run:
           name: run tests
           command: |
