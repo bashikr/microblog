@@ -27,8 +27,9 @@ jobs:
             - ./image.tar
 
   test:
-    executor: docker-publisher
-    working_directory: ~/repo
+    docker:
+      - image: circleci/python:3.7
+    working_directory: ~/microblog
     steps:
       - checkout
       - run:
