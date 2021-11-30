@@ -74,15 +74,10 @@ jobs:
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
 
-  # Add the following environment variables on CircleCi
-  # and add their values:
-  # AZURE_AD_USER, AZURE_PASSWORD, AZURE_SUBSCRIPTION_ID.
-  # Dont forget to add your ssh PEM private key on CircleCi
-  # without giving it a name.
-  deploy-azure: # deploys appServer.yml playbook
+  deploy-azure:
     docker:
       - image: circleci/python:3.7
-    working_directory: ~/microblog # moves to microblog
+    working_directory: ~/repo
     steps:
       - checkout
       - run:
