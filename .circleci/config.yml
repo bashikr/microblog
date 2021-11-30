@@ -27,8 +27,7 @@ jobs:
             - ./image.tar
 
   test:
-    docker:
-      - image: circleci/python:3.7
+    executor: docker-publisher
     working_directory: ~/repo
     steps:
       - checkout
