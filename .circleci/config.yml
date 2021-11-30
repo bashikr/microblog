@@ -105,13 +105,19 @@ workflows:
           filters:
             branches:
               only: master
-      - publish-latest:
+      - test:
           requires:
             - build
           filters:
             branches:
               only: master
       - publish-latest:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy-azure:
           requires:
             - publish-latest
           filters:
