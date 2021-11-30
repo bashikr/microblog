@@ -14,7 +14,7 @@
 -   name: Install packages
     apt:
         force_apt_get: yes
-        name: "{{ packages }}"
+        name: "{{ packages }}" # from vars/main.yml
 
 -   name: Copy unattended upgrades 10 settings
     copy:
@@ -47,8 +47,8 @@
         regex: "^PermitRootLogin"
         line: "PermitRootLogin no"
         state: present
-    notify:
-        - restart ssh
+    notify: # is used with handlers
+        - restart ssh # from handlers/main.yml
 
 -   name: Disallow root ssh access
     lineinfile:

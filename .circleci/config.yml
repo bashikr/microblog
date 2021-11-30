@@ -10,8 +10,8 @@ jobs:
   build:
     executor: docker-publisher
     steps:
-      - checkout
-      - setup_remote_docker
+      - checkout # It's basically a git clone of code
+      - setup_remote_docker # Creates a remote Docker environment configured to execute Docker commands.
       - run:
           name: Build Docker image
           command: |
@@ -19,7 +19,8 @@ jobs:
       - run:
           name: Archive Docker image
           command: docker save -o image.tar $IMAGE_NAME
-      # Persists image.tar from the upper run on the workflow workspace 
+      # Persists image.tar from the upper run on the workflow workspace
+      # Special step used to persist a temporary file to be used by another job in the workflow.
       - persist_to_workspace:
           root: .
           paths:
@@ -92,6 +93,7 @@ jobs:
       - run:
           name: Execute appServer playbook
           command: |
+            . venv/bin/activate \
             cd ansible \
             ansible-playbook gather_vm_instances.yml appServer.yml
 

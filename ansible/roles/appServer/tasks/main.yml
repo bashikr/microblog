@@ -14,18 +14,20 @@
 
 -   name: Add Docker GPG apt Key
     apt_key:
+        # GnuPG allows to encrypt and sign your data and communication, features a versatile key
+        # management system as well as access modules for all kinds of public key directories.
         url: https://download.docker.com/linux/debian/gpg
         state: present
 
 -   name: Add docker repository to apt
-    apt_repository:
+    apt_repository: # this is a module
         repo: deb https://download.docker.com/linux/debian/ buster stable
         state: present
 
 -   name: install docker
-    apt:
+    apt: # this is a module
         update_cache: yes
-        name: "{{item}}"
+        name: "{{item}}" # item is used by ansible to describe looped items in a loop
         state: latest
     loop:
         - docker-ce
@@ -34,15 +36,15 @@
         - restart docker
 
 -   name: Install docker module for python
-    pip:
+    pip: # this is a module
         name: docker
 
 -   name: Create prod container
-    docker_container:
+    docker_container: # this is a module
         name: prod
         image: bashikr/microblog:latest
-        state: started
-        container_default_behavior: "compatibility"
+        state: started # since we want to spin the container then it have to be started
+        container_default_behavior: "compatibility" # to avoid legacy code messages
         restart_policy: always
         ports:
         - "8000:5000"
