@@ -45,8 +45,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            make test-unit
-
+            which coverage
   #pushes the images we just built to Docker Hub
   publish-latest:
     executor: docker-publisher
