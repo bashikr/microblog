@@ -102,25 +102,7 @@ workflows:
   #Runs build job when we push a commit to the master branch
   build-master:
     jobs:
-      - build:
-          filters:
-            branches:
-              only: master
       - test:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-      - publish-latest:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-      - deploy-azure:
-          requires:
-            - publish-latest
           filters:
             branches:
               only: master
