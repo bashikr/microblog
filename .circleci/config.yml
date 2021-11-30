@@ -25,6 +25,7 @@ jobs:
           root: .
           paths:
             - ./image.tar
+
   test:
     docker:
       - image: circleci/python:3.7
@@ -54,6 +55,7 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
+
   publish-tag:
     executor: docker-publisher
     steps:
@@ -71,6 +73,7 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
+
   # Add the following environment variables on CircleCi
   # and add their values:
   # AZURE_AD_USER, AZURE_PASSWORD, AZURE_SUBSCRIPTION_ID.
