@@ -37,8 +37,7 @@ jobs:
             sudo apt update
             python3 -m venv venv
             . venv/bin/activate
-            pip install pylint
-            pip install coverage
+            pip install py pylint pytest coverage
       - run:
           name: run tests
           command: |
