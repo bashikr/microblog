@@ -25,6 +25,7 @@ jobs:
           root: .
           paths:
             - ./image.tar
+
   test:
     docker:
       - image: circleci/python:3.7
@@ -33,7 +34,16 @@ jobs:
       - checkout
       - run:
           name: install dependencies
-          command: docker-compose up test
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            make test
+
   #pushes the images we just built to Docker Hub
   publish-latest:
     executor: docker-publisher
@@ -54,6 +64,7 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
+
   publish-tag:
     executor: docker-publisher
     steps:
@@ -71,6 +82,7 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
+
   # Add the following environment variables on CircleCi
   # and add their values:
   # AZURE_AD_USER, AZURE_PASSWORD, AZURE_SUBSCRIPTION_ID.
@@ -103,6 +115,24 @@ workflows:
   build-master:
     jobs:
       - test:
+          filters:
+            branches:
+              only: master
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - publish-latest:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy-azure:
+          requires:
+            - publish-latest
           filters:
             branches:
               only: master
