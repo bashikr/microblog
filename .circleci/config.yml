@@ -39,7 +39,6 @@ jobs:
             . venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements.txt
-            pip install -r setuptools
             pip install -r pylint
       - run:
           name: run tests
