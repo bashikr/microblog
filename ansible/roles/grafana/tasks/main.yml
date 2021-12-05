@@ -1,0 +1,55 @@
+---
+-   name: create grafana volume
+    docker_volume:
+        name: grafana-data
+
+-   name: Create a Docker network
+    docker_network:
+        name: monitor
+
+-   name: Create grafana container
+    docker_container:
+        name: grafana
+        image: grafana/grafana:8.2.4
+        state: started
+        container_default_behavior: "compatibility"
+        restart_policy: unless-stopped
+        volumes:
+            - grafana-data:/var/lib/grafana
+        ports:
+            - "3000:3000"
+        networks_cli_compatible: true
+        network_mode: monitor
+
+-   name: create prometheus datasource
+    grafana_datasource:
+        org_id: "1"
+        name: Prometheus
+        grafana_url: "{{ groups['monitoring'][0] }}:3000/"
+        ds_type: "prometheus"
+        ds_url: "{{ groups['monitoring'][0] }}:9090"
+
+-   name: Creates directory in monitoring instance
+    file:
+        path: "/tmp/public/"
+        state: directory
+        mode: 0775
+
+-   name: Copy node-exporter.json (copied from grafanas homepage) id=22
+    copy:
+        src: files/node-exporter.json
+        dest: /tmp/public/node-exporter.json
+
+-   name: Create a folder in grafana dashboard
+    community.grafana.grafana_folder:
+        url: "{{ groups['monitoring'][0] }}:3000/"
+        title: "public"
+        state: present
+
+-   name: create Grafana node exporter dashboard
+    grafana_dashboard:
+        grafana_url: "{{ groups['monitoring'][0] }}:3000/"
+        state: present
+        folder: public
+        overwrite: yes
+        path: /tmp/public/node-exporter.json

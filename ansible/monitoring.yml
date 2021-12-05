@@ -1,10 +1,12 @@
 ---
--   name: Play 1 # - is treated as dictionary in Plays and as list in tasks
-    hosts: loadBalancer
+-   name: Play 1
+    hosts: monitoring
     remote_user: deploy
     become: yes
     become_method: sudo
     vars:
         ansible_python_interpreter: /usr/bin/python3
     roles:
-        - loadBalancer
+        - node-exporter
+        - prometheus
+        - grafana

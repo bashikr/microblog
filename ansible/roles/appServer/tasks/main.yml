@@ -42,7 +42,7 @@
 -   name: Create prod container
     docker_container: # this is a module
         name: prod
-        image: bashikr/microblog:latest
+        image: bashikr/microblog:flask-exporter
         state: started # since we want to spin the container then it have to be started
         container_default_behavior: "compatibility" # to avoid legacy code messages
         restart_policy: always
