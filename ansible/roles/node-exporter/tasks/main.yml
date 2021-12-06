@@ -1,0 +1,68 @@
+---
+-   name: Update apt-cache and upgrade
+    apt:
+        force_apt_get: yes
+        update_cache: "True"
+        cache_valid_time: 3600
+        upgrade: yes
+
+-   name: installa dependency
+    apt:
+        force_apt_get: yes
+        name: "{{ packages }}"
+        state: present
+
+-   name: Add Docker GPG apt Key
+    apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+-   name: Add docker repository to apt
+    apt_repository:
+        repo: deb https://download.docker.com/linux/debian/ buster stable
+        state: present
+
+-   name: install docker
+    apt:
+        update_cache: yes
+        name: "{{item}}"
+        state: latest
+    loop:
+        - docker-ce
+        - docker-ce-cli
+    notify:
+        - restart docker
+
+-   name: Install docker module for python
+    pip:
+        name: docker
+
+-   name: change docker mode
+    file:
+        path: /var/run/docker.sock
+        mode: '0666'
+
+-   name: Create a Docker network
+    docker_network:
+        name: monitor
+
+-   name: Create node-exporter container
+    docker_container:
+        name: node-exporter
+        image: prom/node-exporter:v1.2.2
+        ports:
+            - "9100:9100"
+        state: started
+        container_default_behavior: "compatibility"
+        restart_policy: unless-stopped
+        volumes:
+            - /proc:/host/proc:ro # ro stands for read only
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command: |
+            --path.procfs=/host/proc
+            --path.rootfs=/rootfs
+            --path.sysfs=/host/sys
+            --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+        networks_cli_compatible: true
+        network_mode: monitor

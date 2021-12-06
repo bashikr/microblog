@@ -1,18 +1,39 @@
 ---
--   name: Update apt-cache and upgrade
+-   name: installa dependency
     apt:
         force_apt_get: yes
-        update_cache: "True"
-        cache_valid_time: 3600
-        upgrade: yes
-
--   name: Install packages
-    apt:
-        force_apt_get: yes
-        name: 
-          - nginx
-          - python-certbot-nginx
+        name: "{{ packages }}"
         state: present
+
+-   name: Add Docker GPG apt Key
+    apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+-   name: Add docker repository to apt
+    apt_repository:
+        repo: deb https://download.docker.com/linux/debian/ buster stable
+        state: present
+
+-   name: install docker
+    apt:
+        update_cache: yes
+        name: "{{item}}"
+        state: latest
+    loop:
+        - docker-ce
+        - docker-ce-cli
+    notify:
+        - restart docker
+
+-   name: pip install
+    pip:
+        name: docker
+
+-   name: change docker mode
+    file:
+        path: /var/run/docker.sock
+        mode: '0666'
 
 -   name: Check if certificate already exists.
     stat:
@@ -60,3 +81,17 @@
         state: started
     notify:
         - restart nginx
+
+-   name: Create nginx prometheus exporter container
+    docker_container:
+        name: nginx-prometheus
+        image: nginx/nginx-prometheus-exporter:0.4.2
+        ports:
+            - "9113:9113"
+        restart_policy: always
+        state: started
+        command: |
+            -nginx.scrape-uri=https://microblogonsteroids.software/metrics
+            -nginx.retries=10
+            -nginx.ssl-verify=false
+            -web.telemetry-path=/prometheus
