@@ -213,5 +213,5 @@ install-test:
 # target: install-deploy                 - Install all Python packages specified in requirements/{deploy.txt} and ansible galaxy collections in ansible/requirements.yml
 .PHONY: install-deploy
 install-deploy:
-	${pip} install -r --force requirements/deploy.txt
-	cd ansible && ansible-galaxy install --force -r requirements.yml
+	${pip} install -r requirements/deploy.txt
+	cd ansible && ansible-galaxy install -r requirements.yml
