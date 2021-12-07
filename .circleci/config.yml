@@ -21,7 +21,7 @@ jobs:
           command: |
             docker build -t $IMAGE_NAME:flask-exporter -f docker/Dockerfile_prod .
       - snyk/scan:
-        docker-image-name: $IMAGE_NAME:flask-exporter
+          docker-image-name: $IMAGE_NAME:flask-exporter
       - run:
           name: Archive Docker image
           command: docker save -o image.tar $IMAGE_NAME
