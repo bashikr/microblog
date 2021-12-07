@@ -30,11 +30,6 @@
     pip:
         name: docker
 
--   name: change docker mode
-    file:
-        path: /var/run/docker.sock
-        mode: '0666'
-
 -   name: Check if certificate already exists.
     stat:
         path: /etc/letsencrypt/live/{{ domain_name }}/cert.pem
