@@ -2,7 +2,7 @@
 Contains routes for main purpose of app
 """
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, current_app
+from flask import render_template, flash, redirect, url_for, request, current_app, send_from_directory
 from flask_login import current_user, login_required
 from app import db
 from app.main.forms import EditProfileForm, PostForm
@@ -124,3 +124,18 @@ def unfollow(username):
     db.session.commit()
     flash(f'You are not following {username}.')
     return redirect(url_for('main.user', username=username))
+
+@bp.route('/robots.txt')
+def robots():
+    """
+    Route for robots and crawlers
+    """
+    return send_from_directory('static', 'robots.txt')
+
+
+@bp.route('/sitemap.xml')
+def sitemap():
+    """
+    Route for the sitemap
+    """
+    return send_from_directory('static', 'sitemap.xml')
