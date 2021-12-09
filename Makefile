@@ -222,3 +222,8 @@ install-deploy:
 .PHONY: run-bandit
 run-bandit:
 	bandit -r app
+
+# target: run-zap
+.PHONY: run-zap
+run-zap:
+	docker run owasp/zap2docker-weekly zap-baseline.py -t https://www.microblogonsteroids.software

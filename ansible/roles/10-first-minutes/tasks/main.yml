@@ -83,3 +83,11 @@
         state: absent
         force: yes
         remove: yes
+
+
+-   name: Add new sshd_config
+    copy:
+        src: files/sshd_config
+        dest: /etc/ssh/sshd_config
+    notify:
+        - restart ssh

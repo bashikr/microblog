@@ -137,19 +137,19 @@ workflows:
   #Runs build job when we push a commit to the master branch
   build-master:
     jobs:
-      - snyk:
-          filters:
-            branches:
-              only: master
       - test:
-          requires:
-            - snyk
           filters:
             branches:
               only: master
       - build:
           requires:
             - test
+          filters:
+            branches:
+              only: master
+      - snyk:
+          requires:
+            - build
           filters:
             branches:
               only: master

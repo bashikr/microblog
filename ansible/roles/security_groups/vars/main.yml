@@ -29,7 +29,7 @@ sg_groups:
             access: Allow
             priority: 1004
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '{{ groups["monitoring"][0] }}/32' # monitoring connect to loadBalancer via 9113
     -   name: appServer
         port_rules:
         -   name: APP
@@ -45,7 +45,7 @@ sg_groups:
             access: Allow
             priority: 1002
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '0.0.0.0/0' # graphical interface of the Microblog flaskapp
     -   name: database
         port_rules:
         -   name: SSH
@@ -61,14 +61,14 @@ sg_groups:
             access: Allow
             priority: 1002
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '{{ groups["appServer"][0] }}/32' # appServer connect to databse via 3306
         -   name: mysqld-exporter
             protocol: Tcp
             destination_port_range: 9104
             access: Allow
             priority: 1003
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '{{ groups["monitoring"][0] }}/32' # prometheus/monitoring connect to database via 9104
     -   name: monitoring
         port_rules:
         -   name: SSH
@@ -84,25 +84,25 @@ sg_groups:
             access: Allow
             priority: 1002
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '0.0.0.0/0' # graphical interface Prometheus
         -   name: alert
             protocol: Tcp
             destination_port_range: 9093
             access: Allow
             priority: 1003
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '0.0.0.0/0' # graphical interface 
         -   name: grafana
             protocol: Tcp
             destination_port_range: 3000
             access: Allow
             priority: 1004
             direction: Inbound
-            source_address_prefix: '0.0.0.0/0'
+            source_address_prefix: '0.0.0.0/0'  # graphical interface Grafana
         -   name: node-exporter
             protocol: Tcp
             destination_port_range: 9100
             access: Allow
             priority: 1005
             direction: Inbound
-            source_address_prefix: "0.0.0.0/0"
+            source_address_prefix: '{{ groups["monitoring"][0] }}/32' # node-exporter/monitoring collect infrastructre data via 9100
