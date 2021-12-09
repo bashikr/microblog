@@ -7,15 +7,22 @@
     docker_network:
         name: monitor
 
+-   name: Grafana config template to grafana container
+    template:
+        src: templates/grafana.ini.j2
+        dest: /tmp/grafana.ini
+        force: yes
+
 -   name: Create grafana container
     docker_container:
         name: grafana
         image: grafana/grafana:8.2.4
         state: started
         container_default_behavior: "compatibility"
-        restart_policy: unless-stopped
+        restart_policy: always
         volumes:
             - grafana-data:/var/lib/grafana
+            - /tmp/grafana.ini:/etc/grafana/grafana.ini
         ports:
             - "3000:3000"
         networks_cli_compatible: true
