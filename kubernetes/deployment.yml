@@ -16,6 +16,11 @@ spec:
       - image: bashikr/microblog:flask-exporter
         imagePullPolicy: Always
         name: microblog
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
         ports:
           - containerPort: 5000
         env:

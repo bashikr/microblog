@@ -1,0 +1,12 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata: # name of service
+  name: microblog-hpa
+spec: # what will hpa do
+  maxReplicas: 5
+  minReplicas: 1
+  scaleTargetRef: # what specifically you want to scale nodes, pods, or containers?
+    apiVersion: apps/v1 # the api responsible for apps
+    kind: Deployment
+    name: microblog # the name of the deployed service i.e. microblog app
+  targetCPUUtilizationPercentage: 20

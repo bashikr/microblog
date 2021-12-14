@@ -9,10 +9,10 @@ metadata:
 spec:
   tls: # sätter att vi ska bara acceptera https trafik till er domän
   - hosts:
-    - basharaltaleb.tech
+    - microblog2021.me
     secretName: demo-tls # det kommer senare skapas en secret med detta namnet som innehåller certificatet för vårt domännamn.
   rules:
-  - host: basharaltaleb.tech
+  - host: microblog2021.me
     http:
       paths:
       - path: /
